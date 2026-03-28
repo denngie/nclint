@@ -1,12 +1,11 @@
-"""Rule to identify VRFs that are defined but not used in any interface."""
+# pylint: disable=missing-module-docstring
+from nclint import Finding, BaseNCLintRule, Severity
 
-from nclint import Finding, NCLintRule, Severity
 
-
-class UnusedVRFRule(NCLintRule):
+class NCLintRule(BaseNCLintRule):
     """Rule to identify VRFs that are defined but not used in any interface."""
 
-    id = "VRF_UNUSED"
+    id = "UNUSED_VRF"
     severity = Severity.WARNING
     description = "VRF defined but unused"
 
@@ -15,8 +14,9 @@ class UnusedVRFRule(NCLintRule):
         findings: list[Finding] = []
 
         vrfs = self.parse.find_objects(r"^vrf definition")
-        interfaces = self.parse.find_objects(r"^interface")
-
+        interfaces = self.parse.find_parent_objects_wo_child(
+            r"^interface", r"^\s*shutdown"
+        )
         used: set[str] = set()
 
         for intf in interfaces:

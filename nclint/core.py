@@ -30,7 +30,7 @@ class Finding:
         self.line = line
 
 
-class NCLintRule(metaclass=ABCMeta):
+class BaseNCLintRule(metaclass=ABCMeta):
     """Base class for all NCLint rules."""
 
     id: str
@@ -58,8 +58,8 @@ class NCLintRule(metaclass=ABCMeta):
 
 
 @runtime_checkable
-class NCLintRuleClass(Protocol):
-    """Protocol describing the class-level interface of an NCLintRule subclass."""
+class BaseNCLintRuleClass(Protocol):
+    """Protocol describing the class-level interface of an BaseNCLintRule subclass."""
 
     id: str
     severity: Severity
@@ -71,14 +71,14 @@ class NCLintRuleClass(Protocol):
         id_: str,
         severity: Severity,
         description: str,
-    ) -> NCLintRule: ...
+    ) -> BaseNCLintRule: ...
 
 
 class AnalyzerEngine:
     """Engine to run all registered rules against a given configuration."""
 
     def __init__(  # type: ignore[no-any-unimported]
-        self, parse: CiscoConfParse, rules: list[NCLintRuleClass]
+        self, parse: CiscoConfParse, rules: list[BaseNCLintRuleClass]
     ):
         self.parse = parse
         self.rules = rules
@@ -99,14 +99,14 @@ class AnalyzerEngine:
             except ValueError as e:
                 findings.append(Finding(rule_cls.id, Severity.ERROR, str(e)))
 
-        return findings
+        return sorted(findings, key=lambda f: f.line)
 
 
 class RuleRegistry:
     """Registry to discover and store all available rules."""
 
     def __init__(self, package: ModuleType):
-        self.rules: list[NCLintRuleClass] = []
+        self.rules: list[BaseNCLintRuleClass] = []
         self._discover(package)
 
     def _discover(self, package: ModuleType) -> None:
@@ -116,11 +116,11 @@ class RuleRegistry:
                 module = import_module(modname)
                 for attr in dir(module):
                     obj = getattr(module, attr)
-                    if isinstance(obj, NCLintRuleClass):
+                    if isinstance(obj, BaseNCLintRuleClass):
                         self.rules.append(obj)
-                    elif isinstance(obj, ABCMeta) and obj.__name__ != "NCLintRule":
+                    elif isinstance(obj, ABCMeta) and obj.__name__ != "BaseNCLintRule":
                         raise ModuleNotFoundError(
-                            f"{obj.__name__} does not conform to NCLintRuleClass protocol."
+                            f"{obj.__name__} does not conform to BaseNCLintRuleClass protocol."
                         )
             except (AttributeError, ModuleNotFoundError) as e:
                 print(f"Error importing {modname}: {e}")

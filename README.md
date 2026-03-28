@@ -10,20 +10,14 @@ Network config linter library - dynamically imports rule via the RuleRegistry, A
 
 main.py demo usage output:
 ```bash
-(.venv) dennis@Dennis-PC:~/nclint$ python3 main.py
-VRF_UNUSED [Severity.WARNING] - VRF testvrf15 defined but unused (line 46)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF Mgmt-intf only contains one single interface (line 82)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf1 only contains one single interface (line 90)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf10 only contains one single interface (line 102)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf11 only contains one single interface (line 114)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf12 only contains one single interface (line 126)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf13 only contains one single interface (line 138)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf14 only contains one single interface (line 150)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf2 only contains one single interface (line 162)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf3 only contains one single interface (line 174)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf4 only contains one single interface (line 186)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf5 only contains one single interface (line 198)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf6 only contains one single interface (line 210)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf8 only contains one single interface (line 231)
-VRF_SINGLE_INTF [Severity.WARNING] - VRF testvrf_global only contains one single interface (line 243)
+(.venv) denngie@ubuntu:~/nclint$ python3 main.py
+[error] VRF testvrf1 has an invalid RD or RT value: 1, 1, 1 (RD/RT invalid [Ln 22])
+[error] VRF testvrf4 has an invalid RD or RT value: 4, 4, 4 (RD/RT invalid [Ln 34])
+[error] VRF testvrf7 has an invalid RD or RT value: 7, 7, 7 (RD/RT invalid [Ln 58])
+[error] VRF testvrf8 has an invalid RD or RT value: 8, 8, 8 (RD/RT invalid [Ln 70])
+[warning] VRF testvrf7 defined but unused (UNUSED_VRF [Ln 222])
+[hint] L2 trunk without [tr] suffix on interface Port-channel11 (L2_trunk_suffix [Ln 394])
+[hint] L3 link aggregation on interface Port-channel12, consider using ECMP instead (L3_LAG [Ln 410])
+[hint] L2 trunk without [tr] suffix on interface Port-channel12 (L2_trunk_suffix [Ln 410])
+[hint] Non trunk with [tr] suffix on interface TenGigabitEthernet0/0/4 (L2_trunk_suffix [Ln 458])
 ```

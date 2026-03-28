@@ -13,7 +13,7 @@ def run(config_file: str) -> None:
     findings = engine.run()
     for finding in findings:
         print(
-            f"{finding.rule_id} [{finding.severity}] - {finding.message} (line {finding.line})"
+            f"[{finding.severity.value}] {finding.message} ({finding.rule_id} [Ln {finding.line}])"
         )
 
 

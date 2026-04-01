@@ -9,6 +9,9 @@ class NCLintRule(BaseNCLintRule):
     severity = Severity.HINT
     description = "L3 link aggregation, consider using ECMP"
 
+    def valid_os(self) -> bool:
+        return bool(self.parse.syntax == "ios")
+
     def analyze(self) -> list[Finding]:
 
         findings: list[Finding] = []

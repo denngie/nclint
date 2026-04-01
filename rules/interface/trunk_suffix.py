@@ -10,6 +10,9 @@ class NCLintRule(BaseNCLintRule):
     severity = Severity.HINT
     description = "L2 trunk should have [tr] suffix"
 
+    def valid_os(self) -> bool:
+        return bool(self.parse.syntax == "ios")
+
     def analyze(self) -> list[Finding]:
 
         findings: list[Finding] = []

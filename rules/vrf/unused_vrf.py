@@ -9,6 +9,9 @@ class NCLintRule(BaseNCLintRule):
     severity = Severity.WARNING
     description = "VRF defined but unused"
 
+    def valid_os(self) -> bool:
+        return bool(self.parse.syntax == "ios")
+
     def analyze(self) -> list[Finding]:
 
         findings: list[Finding] = []

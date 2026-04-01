@@ -11,6 +11,9 @@ class NCLintRule(BaseNCLintRule):
 
     valid_values = ["65167", "65170", "65200"]
 
+    def valid_os(self) -> bool:
+        return bool(self.parse.syntax == "ios")
+
     def analyze(self) -> list[Finding]:
 
         findings: list[Finding] = []

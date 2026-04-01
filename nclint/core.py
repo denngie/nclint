@@ -53,12 +53,16 @@ class BaseNCLintRule(metaclass=ABCMeta):
             )
 
     @abstractmethod
+    def valid_os(self) -> bool:
+        """Check if the rule is applicable to the current configuration's OS."""
+
+    @abstractmethod
     def analyze(self) -> list[Finding]:
         """Analyze the configuration and return a list of findings."""
 
 
 @runtime_checkable
-class BaseNCLintRuleClass(Protocol):
+class BaseNCLintRuleClass(Protocol):  # pylint: disable=too-few-public-methods
     """Protocol describing the class-level interface of an BaseNCLintRule subclass."""
 
     id: str
@@ -74,7 +78,7 @@ class BaseNCLintRuleClass(Protocol):
     ) -> BaseNCLintRule: ...
 
 
-class AnalyzerEngine:
+class AnalyzerEngine:  # pylint: disable=too-few-public-methods
     """Engine to run all registered rules against a given configuration."""
 
     def __init__(  # type: ignore[no-any-unimported]
@@ -90,6 +94,9 @@ class AnalyzerEngine:
             rule = rule_cls(
                 self.parse, rule_cls.id, rule_cls.severity, rule_cls.description
             )
+            if not rule.valid_os():
+                continue
+
             try:
                 results = rule.analyze()
 
@@ -102,7 +109,7 @@ class AnalyzerEngine:
         return sorted(findings, key=lambda f: f.line)
 
 
-class RuleRegistry:
+class RuleRegistry:  # pylint: disable=too-few-public-methods
     """Registry to discover and store all available rules."""
 
     def __init__(self, package: ModuleType):

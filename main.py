@@ -7,7 +7,7 @@ import rules
 
 def run(config_file: str) -> None:
     """Run the analysis engine on the given configuration file."""
-    parse = CiscoConfParse(config_file)
+    parse = CiscoConfParse(config_file, syntax="ios")
     registry = RuleRegistry(rules)
     engine = AnalyzerEngine(parse, registry.rules)
     findings = engine.run()

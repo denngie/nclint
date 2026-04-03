@@ -1,7 +1,7 @@
 """Main entry point for NCLint."""
 
 from argparse import ArgumentParser
-from sys import exit as sys_exit
+import sys
 from ciscoconfparse2 import CiscoConfParse  # type: ignore[import-untyped]
 from nclint import AnalyzerEngine, RuleRegistry
 import rules
@@ -24,7 +24,10 @@ def main() -> None:
         parse = CiscoConfParse(args.config_file, syntax=args.os)
     except FileNotFoundError:
         print(f"Error: Configuration file '{args.config_file}' not found.")
-        sys_exit(1)
+        sys.exit(1)
+    except (ValueError, UnicodeDecodeError) as e:
+        print(f"Error parsing configuration file: {e}")
+        sys.exit(1)
 
     registry = RuleRegistry(rules)
     engine = AnalyzerEngine(parse, registry.rules)
@@ -36,7 +39,7 @@ def main() -> None:
         )
 
     has_errors = any(f.severity.value == "error" for f in findings)
-    sys_exit(has_errors)
+    sys.exit(has_errors)
 
 
 if __name__ == "__main__":

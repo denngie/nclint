@@ -5,7 +5,7 @@ from nclint import Finding, BaseNCLintRule, Severity
 class NCLintRule(BaseNCLintRule):
     """Rule to identify prefix-lists that are defined but does not exist."""
 
-    id = "NONEXISTANT_PREFIX_LIST"
+    id = "NONEXISTENT_PREFIX_LIST"
     severity = Severity.ERROR
     description = "Prefix-list defined but does not exist"
 
@@ -36,10 +36,8 @@ class NCLintRule(BaseNCLintRule):
             name = prefix_list.re_match_typed(r"^ip prefix-list\s(\S+)")
             if name in used:
                 used.remove(name)
-            elif name in dl_used:
+            if name in dl_used:
                 dl_used.remove(name)
-            else:
-                continue
 
         for prefix_list in used:
             use = self.parse.find_objects(rf"^((?!ip).)*prefix-list\s{prefix_list}.*$")
@@ -54,7 +52,7 @@ class NCLintRule(BaseNCLintRule):
 
         for prefix_list in dl_used:
             use = self.parse.find_objects(
-                rf"^^\s*distribute-list prefix\s{prefix_list}.*$"
+                rf"^\s*distribute-list prefix\s{prefix_list}.*$"
             )
             findings.append(
                 Finding(

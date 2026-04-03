@@ -5,10 +5,11 @@ from nclint import Finding, BaseNCLintRule, Severity
 class NCLintRule(BaseNCLintRule):
     """NCLint rule to check for invalid RD and RT values in VRF definitions."""
 
-    id = "RD/RT invalid"
+    id = "RD_RT_INVALID"
     severity = Severity.ERROR
     description = "VRF has an invalid RD or RT value"
 
+    # Replace values below with the actual valid values for RD and RT as per your requirements
     valid_values = ["65167", "65170", "65200"]
 
     def valid_os(self) -> bool:

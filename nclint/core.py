@@ -6,7 +6,7 @@ from enum import Enum
 from importlib import import_module
 from pkgutil import walk_packages
 from types import ModuleType
-from typing import Protocol, runtime_checkable
+from typing import ClassVar, Protocol, runtime_checkable
 from ciscoconfparse2 import CiscoConfParse  # type: ignore[import-untyped]
 
 
@@ -30,11 +30,10 @@ class Finding:
         line: The line number in the configuration where the issue was found
     """
 
-    def __init__(self, rule_id: str, severity: Severity, message: str, line: int = 0):
-        self.rule_id = rule_id
-        self.severity = severity
-        self.message = message
-        self.line = line
+    rule_id: str
+    severity: Severity
+    message: str
+    line: int = 0
 
 
 class BaseNCLintRule(metaclass=ABCMeta):
@@ -47,18 +46,16 @@ class BaseNCLintRule(metaclass=ABCMeta):
         description: A brief description of what the rule checks for
     """
 
-    def __init__(  # type: ignore[no-any-unimported]
-        self, parse: CiscoConfParse, id_: str, severity: Severity, description: str
-    ):
+    id: ClassVar[str]
+    severity: ClassVar[Severity]
+    description: ClassVar[str]
+
+    def __init__(self, parse: CiscoConfParse):  # type: ignore[no-any-unimported]
         self.parse = parse
-        self.id = id_
-        self.severity = severity
-        self.description = description
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         """Ensure that severity is a valid value."""
         super().__init_subclass__(**kwargs)
-        cls.severity = getattr(cls, "severity")
         if not isinstance(cls.severity, Severity):
             raise AttributeError(
                 f"Severity Enum class must be used, got {cls.severity!r}"
@@ -89,11 +86,7 @@ class BaseNCLintRuleClass(Protocol):  # pylint: disable=too-few-public-methods
     description: str
 
     def __call__(  # type: ignore[no-any-unimported]
-        self,
-        parse: CiscoConfParse,
-        id_: str,
-        severity: Severity,
-        description: str,
+        self, parse: CiscoConfParse
     ) -> BaseNCLintRule: ...
 
 
@@ -115,9 +108,7 @@ class AnalyzerEngine:  # pylint: disable=too-few-public-methods
         """Run all rules and collect findings."""
         findings: list[Finding] = []
         for rule_cls in self.rules:
-            rule = rule_cls(
-                self.parse, rule_cls.id, rule_cls.severity, rule_cls.description
-            )
+            rule = rule_cls(self.parse)
             if not rule.valid_os():
                 continue
 
@@ -127,7 +118,7 @@ class AnalyzerEngine:  # pylint: disable=too-few-public-methods
                 if results:
                     findings.extend(results)
 
-            except ValueError as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 findings.append(Finding(rule_cls.id, Severity.ERROR, str(e)))
 
         return sorted(findings, key=lambda f: f.line)

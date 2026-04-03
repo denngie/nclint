@@ -27,15 +27,16 @@ class NCLintRule(BaseNCLintRule):
                 r"(rd|route-target (ex|im)port)\s+(\S+):", group=3
             )
 
-            if not set(values).issubset(self.valid_values):
+            if set(values).issubset(self.valid_values):
+                continue
 
-                findings.append(
-                    Finding(
-                        rule_id=self.id,
-                        severity=self.severity,
-                        message=f"VRF {name} has an invalid RD or RT value: {', '.join(values)}",
-                        line=vrf.linenum,
-                    )
+            findings.append(
+                Finding(
+                    rule_id=self.id,
+                    severity=self.severity,
+                    message=f"VRF {name} has an invalid RD or RT value: {', '.join(values)}",
+                    line=vrf.linenum,
                 )
+            )
 
         return findings

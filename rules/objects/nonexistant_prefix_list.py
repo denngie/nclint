@@ -19,10 +19,13 @@ class NCLintRule(BaseNCLintRule):
         used: set[str] = set()
         dl_used: set[str] = set()
 
+        # Negative lookahead to exclude lines that start with "ip" which is where
+        # prefix-lists are defined, we only want to find uses of prefix-lists
         uses = self.parse.find_objects(r"^((?!ip).)*prefix-list.*$")
         for use in uses:
             name = use.re_match_typed(r"^((?!ip).)*prefix-list\s(\S+)", group=2)
             used.add(name)
+
         dl_uses = self.parse.find_objects(r"^\s*distribute-list prefix.*$")
         for use in dl_uses:
             name = use.re_match_typed(r"^\s*distribute-list prefix\s(\S+)", group=1)

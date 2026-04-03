@@ -22,6 +22,7 @@ class NCLintRule(BaseNCLintRule):
         for use in uses:
             name = use.re_match_typed(r"^((?!ip).)*prefix-list\s(\S+)", group=2)
             used.add(name)
+
         dl_uses = self.parse.find_objects(r"^\s*distribute-list prefix.*$")
         for use in dl_uses:
             name = use.re_match_typed(r"^\s*distribute-list prefix\s(\S+)", group=1)
@@ -30,14 +31,19 @@ class NCLintRule(BaseNCLintRule):
         prefix_lists = self.parse.find_objects(r"^ip prefix-list\s\S+")
         for prefix_list in prefix_lists:
             name = prefix_list.re_match_typed(r"^ip prefix-list\s(\S+)")
-            if name not in used:
-                findings.append(
-                    Finding(
-                        rule_id=self.id,
-                        severity=self.severity,
-                        message=f"Prefix-list {name} defined but unused",
-                        line=prefix_list.linenum,
-                    )
+            if name in used:
+                continue
+
+            # Add prefix-list as used to avoid duplicate findings for the same prefix-list
+            used.add(name)
+
+            findings.append(
+                Finding(
+                    rule_id=self.id,
+                    severity=self.severity,
+                    message=f"Prefix-list {name} defined but unused",
+                    line=prefix_list.linenum,
                 )
+            )
 
         return findings

@@ -17,6 +17,7 @@ class NCLintRule(BaseNCLintRule):
 
         findings: list[Finding] = []
 
+        # Check for interfaces that are trunk but do not have [tr] in the description
         interfaces = self.parse.find_parent_objects(
             r"^interface", r"^\s*(service instance|switchport mode trunk)"
         )
@@ -24,18 +25,21 @@ class NCLintRule(BaseNCLintRule):
         for intf in interfaces:
 
             description = intf.re_match_iter_typed(r"description\s+(\S.*)")
-            if description[0:4] != "[tr]":
-                name = intf.text.split()[-1]
+            if description[0:4] == "[tr]":
+                continue
 
-                findings.append(
-                    Finding(
-                        rule_id=self.id,
-                        severity=self.severity,
-                        message=f"L2 trunk without [tr] suffix on interface {name}",
-                        line=intf.linenum,
-                    )
+            name = intf.text.split()[-1]
+
+            findings.append(
+                Finding(
+                    rule_id=self.id,
+                    severity=self.severity,
+                    message=f"L2 trunk without [tr] suffix on interface {name}",
+                    line=intf.linenum,
                 )
+            )
 
+        # Check for interfaces that are not trunk but have [tr] in the description
         interfaces = self.parse.find_parent_objects_wo_child(
             r"^interface", r"^\s*(service instance|switchport mode trunk)"
         )
@@ -43,16 +47,18 @@ class NCLintRule(BaseNCLintRule):
         for intf in interfaces:
 
             description = intf.re_match_iter_typed(r"description\s+(\S.*)")
-            if description and description[0:4] == "[tr]":
-                name = intf.text.split()[-1]
+            if description[0:4] != "[tr]":
+                continue
 
-                findings.append(
-                    Finding(
-                        rule_id=self.id,
-                        severity=self.severity,
-                        message=f"Non trunk with [tr] suffix on interface {name}",
-                        line=intf.linenum,
-                    )
+            name = intf.text.split()[-1]
+
+            findings.append(
+                Finding(
+                    rule_id=self.id,
+                    severity=self.severity,
+                    message=f"Non trunk with [tr] suffix on interface {name}",
+                    line=intf.linenum,
                 )
+            )
 
         return findings

@@ -1,10 +1,11 @@
 """Main entry point for NCLint."""
 
 from argparse import ArgumentParser
+from json import dumps
 import sys
 from ciscoconfparse2 import CiscoConfParse  # type: ignore[import-untyped]
-from nclint import AnalyzerEngine, RuleRegistry
-import rules
+from src.nclint import AnalyzerEngine, RuleRegistry
+from src.nclint import rules
 
 
 def main() -> None:
@@ -18,8 +19,25 @@ def main() -> None:
         help="Operating system of the network device (e.g., ios, junos, eos)",
         default="ios",
     )
-    args = arg_parser.parse_args()
+    arg_parser.add_argument(
+        "--json",
+        help="Output findings in JSON format",
+        action="store_true",
+    )
+    arg_parser.add_argument(
+        "--exclude",
+        help="List of rules to exclude from analysis",
+        nargs="+",
+        default=[],
+    )
+    arg_parser.add_argument(
+        "--rule",
+        help="List of rules to exclusively in analysis",
+        nargs="+",
+        default=[],
+    )
 
+    args = arg_parser.parse_args()
     try:
         parse = CiscoConfParse(args.config_file, syntax=args.os)
     except FileNotFoundError:
@@ -29,14 +47,18 @@ def main() -> None:
         print(f"Error parsing configuration file: {e}")
         sys.exit(1)
 
-    registry = RuleRegistry(rules)
+    registry = RuleRegistry(rules, exclude_list=args.exclude, include_list=args.rule)
     engine = AnalyzerEngine(parse, registry.rules)
     findings = engine.run()
 
-    for finding in findings:
-        print(
-            f"[{finding.severity.value}] {finding.message} ({finding.rule_id} [Ln {finding.line}])"
-        )
+    if args.json:
+        print(dumps([f.__dict__ for f in findings], indent=2))
+    else:
+        for finding in findings:
+            print(
+                f"[{finding.severity.value}] {finding.message}"
+                f" ({finding.rule_id} [Ln {finding.line}])"
+            )
 
     has_errors = any(f.severity.value == "error" for f in findings)
     sys.exit(has_errors)

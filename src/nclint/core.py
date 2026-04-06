@@ -10,7 +10,7 @@ from typing import ClassVar, Protocol, runtime_checkable
 from ciscoconfparse2 import CiscoConfParse  # type: ignore[import-untyped]
 
 
-class Severity(Enum):
+class Severity(str, Enum):
     """Severity levels for findings."""
 
     ERROR = "error"
@@ -132,8 +132,15 @@ class RuleRegistry:  # pylint: disable=too-few-public-methods
         rules: A list of discovered rule classes
     """
 
-    def __init__(self, package: ModuleType):
+    def __init__(
+        self,
+        package: ModuleType,
+        exclude_list: list[str] | None = None,
+        include_list: list[str] | None = None,
+    ):
         self.rules: list[BaseNCLintRuleClass] = []
+        self.exclude_list = exclude_list or []
+        self.include_list = include_list or []
         self._discover(package)
 
     def _discover(self, package: ModuleType) -> None:
@@ -144,6 +151,10 @@ class RuleRegistry:  # pylint: disable=too-few-public-methods
                 for attr in dir(module):
                     obj = getattr(module, attr)
                     if isinstance(obj, BaseNCLintRuleClass):
+                        if obj.id in self.exclude_list:
+                            continue
+                        if self.include_list and obj.id not in self.include_list:
+                            continue
                         self.rules.append(obj)
                     elif isinstance(obj, ABCMeta) and obj.__name__ != "BaseNCLintRule":
                         raise ModuleNotFoundError(

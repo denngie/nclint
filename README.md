@@ -6,12 +6,13 @@ Network config linter library - RuleRegistry dynamically imports rules, Analyzer
 ### Overview
 
  * `main.py`: Run the analyzation on the given configuration file.
- * `nclint/core.py`: Main nclint library file containing all classes.
- * `rules/*`: Folder containing all the unique rules the configuration file will be checked against.
+ * `src/nclint/core.py`: Main nclint library file containing all classes.
+ * `src/nclint/rules/*.py`: Folder containing all the unique rules the configuration file will be checked against.
+ * `tests/*`: Folder containing all the unique rules the configuration file will be checked against.
 
 main.py demo usage output:
 ```bash
-(.venv) denngie@ubuntu:~/nclint$ python3 main.py
+(.venv) denngie@ubuntu:~/nclint$ python3 main.py ../config.txt
 [error] VRF testvrf1 has an invalid RD or RT value: 1, 1, 1 (RD/RT invalid [Ln 22])
 [error] VRF testvrf4 has an invalid RD or RT value: 4, 4, 4 (RD/RT invalid [Ln 34])
 [error] VRF testvrf7 has an invalid RD or RT value: 7, 7, 7 (RD/RT invalid [Ln 46])

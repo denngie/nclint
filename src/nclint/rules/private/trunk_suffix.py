@@ -1,12 +1,12 @@
 # pylint: disable=missing-module-docstring
-from nclint import Finding, BaseNCLintRule, Severity
+from src.nclint import Finding, BaseNCLintRule, Severity
 
 
 class NCLintRule(BaseNCLintRule):
     """L2 trunk interfaces should have a description starting
     with [tr] to indicate that they are trunk interfaces."""
 
-    id = "L2_trunk_suffix"
+    id = "L2_TRUNK_SUFFIX"
     severity = Severity.HINT
     description = "L2 trunk should have [tr] suffix"
 

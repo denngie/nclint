@@ -1,5 +1,5 @@
 # pylint: disable=missing-module-docstring
-from nclint import Finding, BaseNCLintRule, Severity
+from src.nclint import Finding, BaseNCLintRule, Severity
 
 
 class NCLintRule(BaseNCLintRule):
@@ -21,9 +21,9 @@ class NCLintRule(BaseNCLintRule):
 
         # Negative lookahead to exclude lines that start with "ip" which is where
         # prefix-lists are defined, we only want to find uses of prefix-lists
-        uses = self.parse.find_objects(r"^((?!ip).)*prefix-list.*$")
+        uses = self.parse.find_objects(r"^(?!ip).*prefix-list.*$")
         for use in uses:
-            name = use.re_match_typed(r"^((?!ip).)*prefix-list\s(\S+)", group=2)
+            name = use.re_match_typed(r"^(?!ip).*prefix-list\s(\S+)", group=1)
             used.add(name)
 
         dl_uses = self.parse.find_objects(r"^\s*distribute-list prefix.*$")
@@ -40,7 +40,7 @@ class NCLintRule(BaseNCLintRule):
                 dl_used.remove(name)
 
         for prefix_list in used:
-            use = self.parse.find_objects(rf"^((?!ip).)*prefix-list\s{prefix_list}.*$")
+            use = self.parse.find_objects(rf"^(?!ip).*prefix-list\s{prefix_list}.*$")
             findings.append(
                 Finding(
                     rule_id=self.id,

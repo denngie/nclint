@@ -1,5 +1,5 @@
 # pylint: disable=missing-module-docstring
-from nclint import Finding, BaseNCLintRule, Severity
+from src.nclint import Finding, BaseNCLintRule, Severity
 
 
 class NCLintRule(BaseNCLintRule):

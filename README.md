@@ -8,7 +8,7 @@ Network config linter library - RuleRegistry dynamically imports rules, Analyzer
  * `main.py`: Run the analyzation on the given configuration file.
  * `src/nclint/core.py`: Main nclint library file containing all classes.
  * `src/nclint/rules/*.py`: Folder containing all the unique rules the configuration file will be checked against.
- * `tests/*`: Folder containing all the unique rules the configuration file will be checked against.
+ * `tests/*`: Folder containing all pytest files for the rules.
 
 main.py demo usage output:
 ```bash
